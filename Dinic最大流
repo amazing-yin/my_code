@@ -13,6 +13,7 @@ const double eps=1e-8;
 const double pi=acos(-1.0);
 const int inf=0x3f3f3f3f;
 const int N=1e4+10,M=1e5+10;
+//链式前向星
 struct edge
 {
     int v,cap,flow,next;
@@ -27,7 +28,7 @@ void add(int u,int v,int cap)
     head[v]=cnt;
 }
 int vis[N],d[N],cur[N];
-int bfs(int s,int t)
+int bfs(int s,int t)//不断寻找增广路
 {
     memset(vis,0,sizeof(vis));
     queue<int>q;
@@ -51,7 +52,7 @@ int bfs(int s,int t)
     }
     return vis[t];
 }
-int dfs(int s,int t,int a)
+int dfs(int s,int t,int a)//增广
 {
     if(s==t||a==0) return a;
     int flow=0,f;
@@ -69,7 +70,7 @@ int dfs(int s,int t,int a)
     }
     return flow;
 }
-int max_flow(int s,int t)
+int max_flow(int s,int t)//返回最大流
 {
     int flow=0;
     while(bfs(s,t))
