@@ -1,0 +1,96 @@
+#include<cstdio>
+#include<vector>
+#include<cstring>
+#include<queue>
+#include<cmath>
+#include<algorithm>
+#include<iostream>
+#define lk (k<<1)
+#define rk (k<<1|1)
+using namespace std;
+typedef long long ll;
+const double eps=1e-8;
+const double pi=acos(-1.0);
+const int inf=0x3f3f3f3f;
+const int N=1e4+10,M=1e5+10;
+struct edge
+{
+    int v,cap,flow,next;
+    edge(int v=0,int cap=0,int next=0,int flow=0):v(v),cap(cap),next(next),flow(flow){}
+}e[M<<1];
+int head[N],cnt;
+void add(int u,int v,int cap)
+{
+    e[++cnt]=edge(v,cap,head[u],0);
+    head[u]=cnt;
+    e[++cnt]=edge(u,0,head[v],0);
+    head[v]=cnt;
+}
+int vis[N],d[N],cur[N];
+int bfs(int s,int t)
+{
+    memset(vis,0,sizeof(vis));
+    queue<int>q;
+    q.push(s);
+    vis[s]=1;
+    d[s]=0;
+    while(!q.empty())
+    {
+        int u=q.front();
+        q.pop();
+        for(int i=head[u];i;i=e[i].next)
+        {
+            int v=e[i].v;
+            if(!vis[v]&&e[i].cap>e[i].flow)
+            {
+                vis[v]=1;
+                q.push(v);
+                d[v]=d[u]+1;
+            }
+        }
+    }
+    return vis[t];
+}
+int dfs(int s,int t,int a)
+{
+    if(s==t||a==0) return a;
+    int flow=0,f;
+    for(int &i=cur[s];i;i=e[i].next)
+    {
+        int v=e[i].v;
+        if(d[s]+1==d[v]&&(f=dfs(v,t,min(a,e[i].cap-e[i].flow)))>0)
+        {
+            flow+=f;
+            e[i].flow+=f;
+            e[i^1].flow-=f;
+            a-=f;
+            if(a==0) break;
+        }
+    }
+    return flow;
+}
+int max_flow(int s,int t)
+{
+    int flow=0;
+    while(bfs(s,t))
+    {
+        memcpy(cur,head,sizeof(head));
+        flow+=dfs(s,t,inf);
+    }
+    return flow;
+}
+int main()
+{
+    cnt=1;
+    int n,m,s,t;
+    scanf("%d%d%d%d",&n,&m,&s,&t);
+    for(int i=1;i<=m;i++)
+    {
+        int u,v,w;
+        scanf("%d%d%d",&u,&v,&w);
+        add(u,v,w);
+    }
+    int ans=max_flow(s,t);
+    printf("%d\n",ans);
+    return 0;
+}
